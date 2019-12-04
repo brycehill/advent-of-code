@@ -1,16 +1,16 @@
 /* Manhattan Distance */
 include Lib;
+module Set = Belt.Set;
 
 let splitOnComma = Js.String.split(",");
 let splitOnNewLines = Js.String.split("\n");
+let addFst = (amount, (x, y)) => (x + amount, y);
+let addSnd = (amount, (x, y)) => (x, y + amount);
 
-let directions = Lib.openFile("test3.txt") |> splitOnNewLines;
+let directions = Lib.openFile("input3.txt") |> splitOnNewLines;
 
-let wire1 = directions[0];
-let wire2 = directions[1];
-
-let wire1Steps = splitOnComma(wire1);
-let wire2Steps = splitOnComma(wire2);
+let wire1Steps = splitOnComma(directions[0]);
+let wire2Steps = splitOnComma(directions[1]);
 
 /* Return a pair of the direction and amount, eg ("U", 870) */
 let parseInstruction = instruction => {
@@ -21,12 +21,28 @@ let parseInstruction = instruction => {
   (direction, amount);
 };
 
-let addFst = ((x, y), amount) => (x + amount, y);
-let subFst = ((x, y), amount) => (x - amount, y);
-let subSnd = ((x, y), amount) => (x, y - amount);
-let addSnd = ((x, y), amount) => (x, y + amount);
-
 let start = (0, 0);
+
+/* Build a list of pairs that includes every coordinate the wire passes through */
+let buildPairs = fn =>
+  List.fold_left((acc, _) => {
+    let lastCoord = List.hd(acc);
+    [fn(lastCoord), ...acc];
+  });
+
+/* Use a Set to take advantage of native `intersect` */
+module CoordComparator =
+  Belt.Id.MakeComparable({
+    type t = (int, int);
+    let cmp = (pair1, pair2) => {
+      let (x1, x2) = pair1;
+      let (y1, y2) = pair2;
+      switch (compare(x1, y1)) {
+      | 0 => compare(x2, y2)
+      | x => x
+      };
+    };
+  });
 
 let stepsToCoords = steps =>
   Array.fold_left(
@@ -35,44 +51,11 @@ let stepsToCoords = steps =>
       let (direction, amount) = parseInstruction(instruction);
       let all = Belt.List.make(amount, (0, 0));
       let paths =
-        /*Get every coord it passes through*/
         switch (direction) {
-        | "U" =>
-          List.fold_left(
-            (acc, (_, _)) => {
-              let (x, y) = List.hd(acc);
-              [(x, y + 1), ...acc];
-            },
-            [curr],
-            all,
-          )
-        | "D" =>
-          List.fold_left(
-            (acc, (_, _)) => {
-              let (x, y) = List.hd(acc);
-              [(x, y - 1), ...acc];
-            },
-            [curr],
-            all,
-          )
-        | "L" =>
-          List.fold_left(
-            (acc, (_, _)) => {
-              let (x, y) = List.hd(acc);
-              [(x - 1, y), ...acc];
-            },
-            [curr],
-            all,
-          )
-        | "R" =>
-          List.fold_left(
-            (acc, (_, _)) => {
-              let (x, y) = List.hd(acc);
-              [(x + 1, y), ...acc];
-            },
-            [curr],
-            all,
-          )
+        | "U" => buildPairs(addSnd(1), [curr], all)
+        | "D" => buildPairs(addSnd(-1), [curr], all)
+        | "L" => buildPairs(addFst(-1), [curr], all)
+        | "R" => buildPairs(addFst(1), [curr], all)
         | _ => []
         };
       paths @ points;
@@ -84,14 +67,14 @@ let stepsToCoords = steps =>
 let wire1Coords = stepsToCoords(wire1Steps);
 let wire2Coords = stepsToCoords(wire2Steps);
 
-/* Loop through 2 lists of pairs and find the matching pairs */
-let findIntersections = (xs, ys) =>
-  List.filter(coord1 => Belt.List.some(ys, coord2 => coord1 == coord2), xs)
-  |> List.filter(pair => pair != (0, 0));
+let c1 =
+  Set.fromArray(Array.of_list(wire1Coords), ~id=(module CoordComparator));
 
-let intersections = findIntersections(wire1Coords, wire2Coords);
+let c2 =
+  Set.fromArray(Array.of_list(wire2Coords), ~id=(module CoordComparator));
 
-Js.log(intersections);
+let intersections =
+  Set.toList(Set.intersect(c1, c2)) |> List.filter(pair => pair != start);
 
 let answer =
   List.fold_left(
@@ -103,7 +86,6 @@ let answer =
        * |p1 - p2| + |q1 - q2|
        */
       let distance = Js.Math.abs_int(p1 - q1) + Js.Math.abs_int(p2 - q2);
-      Js.log2("Distance:", distance);
       distance < shortest ? distance : shortest;
     },
     100000000,
