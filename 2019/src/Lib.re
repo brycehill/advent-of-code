@@ -4,7 +4,7 @@ module Lib = {
   let openFile = file => {
     let path =
       switch (dirname) {
-      | Some(dirname) => dirname ++ file
+      | Some(dirname) => dirname ++ "/" ++ file
       | None => ""
       };
     Node_fs.readFileSync(path, `utf8);

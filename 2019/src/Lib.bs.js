@@ -8,7 +8,7 @@ var Caml_option = require("bs-platform/lib/js/caml_option.js");
 var dirname = typeof __dirname === "undefined" ? undefined : __dirname;
 
 function openFile(file) {
-  var path = dirname !== undefined ? dirname + file : "";
+  var path = dirname !== undefined ? dirname + ("/" + file) : "";
   return Fs.readFileSync(path, "utf8");
 }
 

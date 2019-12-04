@@ -16,7 +16,7 @@ function calculateFuel(mass) {
   }
 }
 
-var __x = $$Array.to_list(Curry._1(Lib$AdventOfCode19.Lib.openFile, "/input1.txt").split("\n"));
+var __x = $$Array.to_list(Curry._1(Lib$AdventOfCode19.Lib.openFile, "input1.txt").split("\n"));
 
 var __x$1 = List.filter((function (str) {
           return str !== "";

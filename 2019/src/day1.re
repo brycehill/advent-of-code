@@ -5,7 +5,7 @@ let rec calculateFuel = mass => {
   fuel <= 0 ? 0 : fuel + calculateFuel(fuel);
 };
 
-Lib.openFile("/input1.txt")
+Lib.openFile("input1.txt")
 ->Js.String.split("\n", _)
 ->Array.to_list
 ->List.filter(str => str !== "", _)

@@ -7,7 +7,6 @@ var Curry = require("bs-platform/lib/js/curry.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Caml_int32 = require("bs-platform/lib/js/caml_int32.js");
-var Caml_splice_call = require("bs-platform/lib/js/caml_splice_call.js");
 var Lib$AdventOfCode19 = require("./Lib.bs.js");
 
 function add(x, y) {
@@ -16,7 +15,7 @@ function add(x, y) {
 
 var mult = Caml_int32.imul;
 
-var input = $$Array.map(Lib$AdventOfCode19.Lib.fromString, Curry._1(Lib$AdventOfCode19.Lib.openFile, "/input2.txt").split(","));
+var memory = $$Array.map(Lib$AdventOfCode19.Lib.fromString, Curry._1(Lib$AdventOfCode19.Lib.openFile, "input2.txt").split(","));
 
 function next(list) {
   var match = Belt_List.drop(list, 4);
@@ -27,13 +26,13 @@ function next(list) {
   }
 }
 
-function main(_data) {
+function computer(_slice, original) {
   while(true) {
-    var data = _data;
-    if (data) {
-      var op = data[0];
+    var slice = _slice;
+    if (slice) {
+      var op = slice[0];
       if (op !== 99) {
-        var match = data[1];
+        var match = slice[1];
         if (match) {
           var match$1 = match[1];
           if (match$1) {
@@ -41,52 +40,64 @@ function main(_data) {
             if (match$2) {
               var match$3 = op === 1;
               var fn = match$3 ? add : mult;
-              var result = Curry._2(fn, Caml_array.caml_array_get(input, match[0]), Caml_array.caml_array_get(input, match$1[0]));
-              Caml_array.caml_array_set(input, match$2[0], result);
-              var rest = next(data);
+              var result = Curry._2(fn, Caml_array.caml_array_get(original, match[0]), Caml_array.caml_array_get(original, match$1[0]));
+              Caml_array.caml_array_set(original, match$2[0], result);
+              var rest = next(slice);
               var match$4 = List.length(rest) > 0;
               if (match$4) {
-                _data = rest;
+                _slice = rest;
                 continue ;
               } else {
-                return input;
+                return original;
               }
             } else {
               console.log("Array was empty");
-              return input;
+              return original;
             }
           } else {
             console.log("Array was empty");
-            return input;
+            return original;
           }
         } else {
           console.log("Array was empty");
-          return input;
+          return original;
         }
       } else {
-        console.log("Terminating");
-        return input;
+        return original;
       }
     } else {
       console.log("Array was empty");
-      return input;
+      return original;
     }
   };
 }
 
-var answer = main($$Array.to_list(input));
+function main(param) {
+  for(var noun = 0; noun <= 99; ++noun){
+    for(var verb = 0; verb <= 99; ++verb){
+      var input = $$Array.copy(memory);
+      Caml_array.caml_array_set(input, 1, noun);
+      Caml_array.caml_array_set(input, 2, verb);
+      var answer = computer($$Array.to_list(input), input);
+      if (Caml_array.caml_array_get(answer, 0) === 19690720) {
+        console.log("Found It!");
+        console.log("noun:", noun, "verb:", verb);
+      }
+      
+    }
+  }
+  return /* () */0;
+}
 
-console.log("Answer:");
-
-Caml_splice_call.spliceApply(console.log, [answer]);
+main(/* () */0);
 
 var Lib = Lib$AdventOfCode19.Lib;
 
 exports.Lib = Lib;
 exports.add = add;
 exports.mult = mult;
-exports.input = input;
+exports.memory = memory;
 exports.next = next;
+exports.computer = computer;
 exports.main = main;
-exports.answer = answer;
-/* input Not a pure module */
+/* memory Not a pure module */
