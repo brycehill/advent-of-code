@@ -15,5 +15,6 @@
     "bs-platform": "^5.0.6"
   },
   "dependencies": {
+    "refmt": "^1.13.7-1"
   }
 }

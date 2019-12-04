@@ -16,9 +16,7 @@ function add(x, y) {
 
 var mult = Caml_int32.imul;
 
-var __x = Curry._1(Lib$AdventOfCode19.Lib.openFile, "/input2.txt").split(",");
-
-var input = $$Array.map(Lib$AdventOfCode19.Lib.fromString, __x);
+var input = $$Array.map(Lib$AdventOfCode19.Lib.fromString, Curry._1(Lib$AdventOfCode19.Lib.openFile, "/input2.txt").split(","));
 
 function next(list) {
   var match = Belt_List.drop(list, 4);
@@ -91,4 +89,4 @@ exports.input = input;
 exports.next = next;
 exports.main = main;
 exports.answer = answer;
-/* __x Not a pure module */
+/* input Not a pure module */
