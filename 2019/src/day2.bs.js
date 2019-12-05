@@ -15,7 +15,7 @@ function main(param) {
       var input = $$Array.copy(memory);
       Caml_array.caml_array_set(input, 1, noun);
       Caml_array.caml_array_set(input, 2, verb);
-      var answer = Curry._2(Intcode$AdventOfCode19.Intcode.computer, $$Array.to_list(input), input);
+      var answer = Curry._2(Intcode$AdventOfCode19.Intcode.run, undefined, input);
       if (Caml_array.caml_array_get(answer, 0) === 19690720) {
         console.log("Found It!");
         console.log("noun:", noun, "verb:", verb);
@@ -30,9 +30,12 @@ main(/* () */0);
 
 var Lib = Lib$AdventOfCode19.Lib;
 
+var $$String = Intcode$AdventOfCode19.$$String;
+
 var Intcode = Intcode$AdventOfCode19.Intcode;
 
 exports.Lib = Lib;
+exports.$$String = $$String;
 exports.Intcode = Intcode;
 exports.memory = memory;
 exports.main = main;
