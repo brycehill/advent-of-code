@@ -11,6 +11,7 @@ var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Belt_List = require("bs-platform/lib/js/belt_List.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
+var Caml_primitive = require("bs-platform/lib/js/caml_primitive.js");
 var Lib$AdventOfCode19 = require("./Lib.bs.js");
 
 function splitOnComma(param) {
@@ -35,6 +36,15 @@ function addSnd(amount, param) {
         ];
 }
 
+function measureDistance(pair1, pair2) {
+  return Math.abs(pair1[0] - pair2[0] | 0) + Math.abs(pair1[1] - pair2[1] | 0) | 0;
+}
+
+var start = /* tuple */[
+  0,
+  0
+];
+
 var directions = Curry._1(Lib$AdventOfCode19.Lib.openFile, "input3.txt").split("\n");
 
 var wire1Steps = Caml_array.caml_array_get(directions, 0).split(",");
@@ -50,29 +60,28 @@ function parseInstruction(instruction) {
         ];
 }
 
-var start = /* tuple */[
-  0,
-  0
-];
-
-function buildPairs(fn) {
-  return (function (param, param$1) {
-      return List.fold_left((function (acc, param) {
-                    var lastCoord = List.hd(acc);
-                    return /* :: */[
-                            Curry._1(fn, lastCoord),
-                            acc
-                          ];
-                  }), param, param$1);
-    });
+function buildCoords(pairFn, curr, all) {
+  return List.fold_left((function (acc, param) {
+                var lastCoord = List.hd(acc);
+                var newPair = Curry._1(pairFn, lastCoord[/* pair */0]);
+                return /* :: */[
+                        /* record */[
+                          /* pair */newPair,
+                          /* totalSteps */lastCoord[/* totalSteps */1] + 1 | 0
+                        ],
+                        acc
+                      ];
+              }), curr, all);
 }
 
-function cmp(pair1, pair2) {
-  var x = Caml_obj.caml_compare(pair1[0], pair2[0]);
+function cmp(c1, c2) {
+  var match = c1[/* pair */0];
+  var match$1 = c2[/* pair */0];
+  var x = Caml_primitive.caml_int_compare(match[0], match$1[0]);
   if (x !== 0) {
     return x;
   } else {
-    return Caml_obj.caml_compare(pair1[1], pair2[1]);
+    return Caml_primitive.caml_int_compare(match[1], match$1[1]);
   }
 }
 
@@ -80,81 +89,85 @@ var CoordComparator = Belt_Id.MakeComparable({
       cmp: cmp
     });
 
-function stepsToCoords(steps) {
-  return $$Array.fold_left((function (points, instruction) {
-                var curr = List.hd(points);
-                var match = parseInstruction(instruction);
-                var all = Belt_List.make(match[1], /* tuple */[
-                      0,
-                      0
-                    ]);
-                var paths;
-                switch (match[0]) {
-                  case "D" :
-                      paths = buildPairs((function (param) {
-                                return addSnd(-1, param);
-                              }))(/* :: */[
-                            curr,
-                            /* [] */0
-                          ], all);
-                      break;
-                  case "L" :
-                      paths = buildPairs((function (param) {
-                                return addFst(-1, param);
-                              }))(/* :: */[
-                            curr,
-                            /* [] */0
-                          ], all);
-                      break;
-                  case "R" :
-                      paths = buildPairs((function (param) {
-                                return addFst(1, param);
-                              }))(/* :: */[
-                            curr,
-                            /* [] */0
-                          ], all);
-                      break;
-                  case "U" :
-                      paths = buildPairs((function (param) {
-                                return addSnd(1, param);
-                              }))(/* :: */[
-                            curr,
-                            /* [] */0
-                          ], all);
-                      break;
-                  default:
-                    paths = /* [] */0;
-                }
-                return Pervasives.$at(paths, points);
-              }), /* :: */[
-              start,
-              /* [] */0
-            ], steps);
+function toSet(list) {
+  return Belt_Set.keep(Belt_Set.fromArray($$Array.of_list(list), CoordComparator), (function (coord) {
+                return Caml_obj.caml_notequal(coord[/* pair */0], start);
+              }));
 }
 
-var wire1Coords = stepsToCoords(wire1Steps);
+function stepsToCoords(steps) {
+  return toSet($$Array.fold_left((function (cs, instruction) {
+                    var lastStep = List.hd(cs);
+                    var match = parseInstruction(instruction);
+                    var all = Belt_List.make(match[1], start);
+                    var newCoords;
+                    switch (match[0]) {
+                      case "D" :
+                          newCoords = buildCoords((function (param) {
+                                  return addSnd(-1, param);
+                                }), /* :: */[
+                                lastStep,
+                                /* [] */0
+                              ], all);
+                          break;
+                      case "L" :
+                          newCoords = buildCoords((function (param) {
+                                  return addFst(-1, param);
+                                }), /* :: */[
+                                lastStep,
+                                /* [] */0
+                              ], all);
+                          break;
+                      case "R" :
+                          newCoords = buildCoords((function (param) {
+                                  return addFst(1, param);
+                                }), /* :: */[
+                                lastStep,
+                                /* [] */0
+                              ], all);
+                          break;
+                      case "U" :
+                          newCoords = buildCoords((function (param) {
+                                  return addSnd(1, param);
+                                }), /* :: */[
+                                lastStep,
+                                /* [] */0
+                              ], all);
+                          break;
+                      default:
+                        newCoords = /* [] */0;
+                    }
+                    return Pervasives.$at(newCoords, cs);
+                  }), /* :: */[
+                  /* record */[
+                    /* pair */start,
+                    /* totalSteps */0
+                  ],
+                  /* [] */0
+                ], steps));
+}
 
-var wire2Coords = stepsToCoords(wire2Steps);
+var set1 = stepsToCoords(wire1Steps);
 
-var c1 = Belt_Set.fromArray($$Array.of_list(wire1Coords), CoordComparator);
+var set2 = stepsToCoords(wire2Steps);
 
-var c2 = Belt_Set.fromArray($$Array.of_list(wire2Coords), CoordComparator);
-
-var intersections = List.filter((function (pair) {
-          return Caml_obj.caml_notequal(pair, start);
-        }))(Belt_Set.toList(Belt_Set.intersect(c1, c2)));
-
-var answer = List.fold_left((function (shortest, pair) {
-        var distance = Math.abs(-pair[0] | 0) + Math.abs(-pair[1] | 0) | 0;
-        var match = distance < shortest;
-        if (match) {
-          return distance;
+var fewestSteps = Belt_Set.reduce(Belt_Set.intersect(set1, set2), 1000000, (function (fewestSteps, coord) {
+        var found1 = Belt_Set.get(set1, coord);
+        var found2 = Belt_Set.get(set2, coord);
+        if (found1 !== undefined && found2 !== undefined) {
+          var newTotal = found2[/* totalSteps */1] + found1[/* totalSteps */1] | 0;
+          var match = newTotal < fewestSteps;
+          if (match) {
+            return newTotal;
+          } else {
+            return fewestSteps;
+          }
         } else {
-          return shortest;
+          return fewestSteps;
         }
-      }), 100000000, intersections);
+      }));
 
-console.log(answer);
+console.log("Fewest Steps:", fewestSteps);
 
 var Lib = Lib$AdventOfCode19.Lib;
 
@@ -166,18 +179,17 @@ exports.splitOnComma = splitOnComma;
 exports.splitOnNewLines = splitOnNewLines;
 exports.addFst = addFst;
 exports.addSnd = addSnd;
+exports.measureDistance = measureDistance;
+exports.start = start;
 exports.directions = directions;
 exports.wire1Steps = wire1Steps;
 exports.wire2Steps = wire2Steps;
 exports.parseInstruction = parseInstruction;
-exports.start = start;
-exports.buildPairs = buildPairs;
+exports.buildCoords = buildCoords;
 exports.CoordComparator = CoordComparator;
+exports.toSet = toSet;
 exports.stepsToCoords = stepsToCoords;
-exports.wire1Coords = wire1Coords;
-exports.wire2Coords = wire2Coords;
-exports.c1 = c1;
-exports.c2 = c2;
-exports.intersections = intersections;
-exports.answer = answer;
+exports.set1 = set1;
+exports.set2 = set2;
+exports.fewestSteps = fewestSteps;
 /* directions Not a pure module */
