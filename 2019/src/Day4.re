@@ -1,10 +1,20 @@
 include Lib;
 module Re = Js.Re;
+module String = Js.String;
 
-let explode = nums => Js.String.split("", nums) |> Array.to_list;
+let explode = nums => String.split("", nums) |> Array.to_list;
 
 /* Validators */
-let twoAdjacentDigits = pw => Re.fromString("(\\d){1}(\\1)+")->Re.test_(pw);
+
+let twoAdjacentDigits = pw => {
+  let result =
+    Re.fromStringWithFlags("(\\d){1}(\\1)+", "g")->String.match(pw);
+  switch (result) {
+  | Some(matches) =>
+    Belt.Array.some(matches, match => String.length(match) == 2)
+  | None => false
+  };
+};
 
 /* Loop through each character and compare it to the previous character */
 let neverDecreases = pw => {
@@ -40,8 +50,8 @@ let countValidPasswords =
   );
 
 let main = input =>
-  Js.String.split("-", input) |> makeArray |> countValidPasswords;
+  String.split("-", input) |> makeArray |> countValidPasswords;
 
 main("156218-652527") |> Js.log;
 
-/* 1694 */
+/* Pt1: 1694 Pt2: 1148 */

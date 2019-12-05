@@ -13,7 +13,14 @@ function explode(nums) {
 }
 
 function twoAdjacentDigits(pw) {
-  return new RegExp("(\\d){1}(\\1)+").test(pw);
+  var result = pw.match(new RegExp("(\\d){1}(\\1)+", "g"));
+  if (result !== null) {
+    return Belt_Array.some(result, (function (match_) {
+                  return match_.length === 2;
+                }));
+  } else {
+    return false;
+  }
 }
 
 function neverDecreases(pw) {
@@ -41,7 +48,7 @@ function neverDecreases(pw) {
 }
 
 function test(pw) {
-  if (new RegExp("(\\d){1}(\\1)+").test(pw)) {
+  if (twoAdjacentDigits(pw)) {
     return neverDecreases(pw);
   } else {
     return false;
@@ -54,7 +61,7 @@ function makeArray(range) {
           Caml_builtin_exceptions.match_failure,
           /* tuple */[
             "Day4.re",
-            31,
+            41,
             6
           ]
         ];
@@ -85,8 +92,11 @@ var Lib = Lib$AdventOfCode19.Lib;
 
 var Re = 0;
 
+var $$String$1 = 0;
+
 exports.Lib = Lib;
 exports.Re = Re;
+exports.$$String = $$String$1;
 exports.explode = explode;
 exports.twoAdjacentDigits = twoAdjacentDigits;
 exports.neverDecreases = neverDecreases;
