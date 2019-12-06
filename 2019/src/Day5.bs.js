@@ -6,7 +6,7 @@ var Curry = require("bs-platform/lib/js/curry.js");
 var Lib$AdventOfCode19 = require("./Lib.bs.js");
 var Intcode$AdventOfCode19 = require("./Intcode.bs.js");
 
-var memory = Curry._2(Intcode$AdventOfCode19.Intcode.run, 1, $$Array.map(Lib$AdventOfCode19.Lib.fromString, Curry._1(Lib$AdventOfCode19.Lib.openFile, "input5.txt").split(",")));
+var memory = Curry._2(Intcode$AdventOfCode19.Intcode.run, 5, $$Array.map(Lib$AdventOfCode19.Lib.fromString, Curry._1(Lib$AdventOfCode19.Lib.openFile, "input5.txt").split(",")));
 
 console.log("Done");
 

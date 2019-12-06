@@ -59,7 +59,7 @@ function run($staropt$star, instructions) {
     var match = parseOpcode(Caml_array.caml_array_get(instructions$1, currIdx));
     var modes = match[1];
     var op = match[0];
-    if (op >= 5) {
+    if (op >= 9) {
       if (op !== 99) {
         console.log("Array was empty or did not match an opcode");
         return instructions$1;
@@ -97,7 +97,7 @@ function run($staropt$star, instructions) {
                     Caml_builtin_exceptions.match_failure,
                     /* tuple */[
                       "Intcode.re",
-                      42,
+                      43,
                       12
                     ]
                   ];
@@ -119,7 +119,7 @@ function run($staropt$star, instructions) {
                     Caml_builtin_exceptions.match_failure,
                     /* tuple */[
                       "Intcode.re",
-                      49,
+                      51,
                       12
                     ]
                   ];
@@ -135,7 +135,7 @@ function run($staropt$star, instructions) {
                     Caml_builtin_exceptions.match_failure,
                     /* tuple */[
                       "Intcode.re",
-                      53,
+                      57,
                       12
                     ]
                   ];
@@ -149,6 +149,104 @@ function run($staropt$star, instructions) {
               console.log("Received opcode 4. Outputting:", output);
             }
             _currIdx = currIdx + 2 | 0;
+            continue ;
+        case 4 :
+            var match$10 = Belt_Array.slice(instructions$1, currIdx, 3);
+            if (match$10.length !== 3) {
+              throw [
+                    Caml_builtin_exceptions.match_failure,
+                    /* tuple */[
+                      "Intcode.re",
+                      67,
+                      12
+                    ]
+                  ];
+            }
+            var pos1$2 = match$10[1];
+            var pos2$2 = match$10[2];
+            var match$11 = modes[1] === "0";
+            var param1$2 = match$11 ? Caml_array.caml_array_get(instructions$1, pos1$2) : pos1$2;
+            var match$12 = modes[0] === "0";
+            var param2$2 = match$12 ? Caml_array.caml_array_get(instructions$1, pos2$2) : pos2$2;
+            var match$13 = param1$2 !== 0;
+            if (match$13) {
+              _currIdx = param2$2;
+              continue ;
+            } else {
+              _currIdx = currIdx + 3 | 0;
+              continue ;
+            }
+        case 5 :
+            var match$14 = Belt_Array.slice(instructions$1, currIdx, 3);
+            if (match$14.length !== 3) {
+              throw [
+                    Caml_builtin_exceptions.match_failure,
+                    /* tuple */[
+                      "Intcode.re",
+                      73,
+                      12
+                    ]
+                  ];
+            }
+            var pos1$3 = match$14[1];
+            var pos2$3 = match$14[2];
+            var match$15 = modes[1] === "0";
+            var param1$3 = match$15 ? Caml_array.caml_array_get(instructions$1, pos1$3) : pos1$3;
+            var match$16 = modes[0] === "0";
+            var param2$3 = match$16 ? Caml_array.caml_array_get(instructions$1, pos2$3) : pos2$3;
+            var match$17 = param1$3 === 0;
+            if (match$17) {
+              _currIdx = param2$3;
+              continue ;
+            } else {
+              _currIdx = currIdx + 3 | 0;
+              continue ;
+            }
+        case 6 :
+            var match$18 = Belt_Array.slice(instructions$1, currIdx, 4);
+            if (match$18.length !== 4) {
+              throw [
+                    Caml_builtin_exceptions.match_failure,
+                    /* tuple */[
+                      "Intcode.re",
+                      79,
+                      12
+                    ]
+                  ];
+            }
+            var pos1$4 = match$18[1];
+            var pos2$4 = match$18[2];
+            var pos3 = match$18[3];
+            var match$19 = modes[1] === "0";
+            var param1$4 = match$19 ? Caml_array.caml_array_get(instructions$1, pos1$4) : pos1$4;
+            var match$20 = modes[0] === "0";
+            var param2$4 = match$20 ? Caml_array.caml_array_get(instructions$1, pos2$4) : pos2$4;
+            var match$21 = param1$4 < param2$4;
+            Caml_array.caml_array_set(instructions$1, pos3, match$21 ? 1 : 0);
+            _currIdx = currIdx + 4 | 0;
+            continue ;
+        case 7 :
+            var match$22 = Belt_Array.slice(instructions$1, currIdx, 4);
+            if (match$22.length !== 4) {
+              throw [
+                    Caml_builtin_exceptions.match_failure,
+                    /* tuple */[
+                      "Intcode.re",
+                      86,
+                      12
+                    ]
+                  ];
+            }
+            var pos1$5 = match$22[1];
+            var pos2$5 = match$22[2];
+            var pos3$1 = match$22[3];
+            var match$23 = modes[1] === "0";
+            var param1$5 = match$23 ? Caml_array.caml_array_get(instructions$1, pos1$5) : pos1$5;
+            var match$24 = modes[0] === "0";
+            var param2$5 = match$24 ? Caml_array.caml_array_get(instructions$1, pos2$5) : pos2$5;
+            var match$25 = param1$5 === param2$5;
+            Caml_array.caml_array_set(instructions$1, pos3$1, match$25 ? 1 : 0);
+            _currIdx = currIdx + 4 | 0;
             continue ;
         
       }
